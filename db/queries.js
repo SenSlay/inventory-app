@@ -15,8 +15,20 @@ async function getallInventory() {
   return rows; 
 }
 
+async function getCategoryById(id) {
+  const { rows } = await pool.query("SELECT * FROM categories WHERE id = ($1)", [id]);
+  return rows[0]; 
+}
+
+async function getSubCategoriesById(id) {
+  const { rows } = await pool.query("SELECT * FROM categories WHERE parent_category_id = ($1)", [id])
+  return rows;
+}
+
 module.exports = {
   getAllTopCategories,
   getAllSubCategories,
-  getallInventory
+  getallInventory,
+  getCategoryById,
+  getSubCategoriesById
 }
