@@ -27,7 +27,7 @@ const getCategories = async (req, res) => {
   }
 };
 
-const getCategory = async(req, res) => {
+const getCategoryDetails = async(req, res) => {
   try {
     const categoryId = req.params.id;
     const category = await getCategoryById(categoryId);
@@ -55,15 +55,14 @@ const getCategory = async(req, res) => {
   }
 }
 
-const renderCategoryForm = async (req, res) => {
+const getCategoryForm = async (req, res) => {
   try {
     const categoryId = req.params.id;
     let category, isEditing;
 
     const parentCategories = await getAllTopCategories();
 
-    if (categoryId) {
-      // Fire both queries in parallel using Promise.all()
+    if (categoryId && Number.isInteger(Number(categoryId))) {
       category = await getCategoryById(categoryId);
 
       if (!category) {
@@ -124,8 +123,8 @@ const editCategory = async(req, res) => {
 
 module.exports = {
   getCategories,
-  getCategory,
-  renderCategoryForm,
+  getCategoryDetails,
+  getCategoryForm,
   addNewCategory,
   editCategory
 }
