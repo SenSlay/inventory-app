@@ -1,4 +1,4 @@
-const { getAllTopCategories, getAllSubCategories, getCategoryById, getSubCategoriesById } = require("../db/queries")
+const { getAllTopCategories, getAllSubCategories, getCategoryById, getSubCategoriesById, getProductsByCategoryId, insertCategory, updateCategory } = require("../db/queries")
 
 const getCategories = async (req, res) => {
   try {
@@ -31,20 +31,23 @@ const getCategory = async(req, res) => {
   try {
     const categoryId = req.params.id;
     const category = await getCategoryById(categoryId);
-    let parentCategory = null;
-    let subCategories = null;
+    let parentCategory, subCategories, categoryProducts;
     if (!category) {
       return res.status(404).send("Category not found");
     }
     
-    if (category.parent_category_id) {
-      parentCategory = await getCategoryById(category.parent_category_id);
-      res.render('categoryDetails', { category, subCategories, parentCategory })
+    const categoryParentId = category.parent_category_id;
+    if (categoryParentId) {
+      [parentCategory, categoryProducts] = await Promise.all([
+        getCategoryById(categoryParentId),
+        getProductsByCategoryId(categoryId)
+      ])
+      res.render('categoryDetails', { category, subCategories, parentCategory, categoryProducts })
       return;
     } else {
       subCategories = await getSubCategoriesById(categoryId);
       console.log(subCategories)
-      res.render('categoryDetails', { category, subCategories })
+      res.render('categoryDetails', { category, subCategories, categoryProducts })
     }
   } catch (err) {
     console.log(err);
@@ -52,7 +55,77 @@ const getCategory = async(req, res) => {
   }
 }
 
+const renderCategoryForm = async (req, res) => {
+  try {
+    const categoryId = req.params.id;
+    let category, isEditing;
+
+    const parentCategories = await getAllTopCategories();
+
+    if (categoryId) {
+      // Fire both queries in parallel using Promise.all()
+      category = await getCategoryById(categoryId);
+
+      if (!category) {
+        return res.status(404).send("Category not found");
+      }
+
+      isEditing = true;
+    }
+
+    res.render('categoryForm', { category, parentCategories, isEditing});
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+};
+
+const addNewCategory = async(req, res) => {
+  try {
+    const { category, description, category_type, parent_category_id } = req.body;
+
+    // Determine parent_category_id: If it's a parent category, set it to NULL
+    const parentId = category_type === "parent" ? null : parent_category_id || null;
+
+    // Insert category into the database
+    const result = await insertCategory(category, description, parentId);
+
+    if (!result) {
+      throw new Error("Failed to insert new category");
+    }
+
+    // Redirect to categories list or show success message
+    res.redirect('/categories');
+  } catch (err) {
+    console.error("Error creating category:", err);
+    res.status(500).send("Server Error");
+  }
+}
+
+const editCategory = async(req, res) => {
+  try {
+    const { category, description } = req.body;
+    const categoryId = req.params.id;
+    console.log("category", category)
+    console.log(description)
+
+    const result = await updateCategory(categoryId, category, description);
+
+    if (!result) {
+      throw new Error("Failed to update category");
+    }
+
+    res.redirect('/categories');
+  } catch (err) {
+    console.error("Error creating category:", err);
+    res.status(500).send("Server Error");
+  }
+}
+
 module.exports = {
   getCategories,
-  getCategory
+  getCategory,
+  renderCategoryForm,
+  addNewCategory,
+  editCategory
 }
