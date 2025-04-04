@@ -45,6 +45,19 @@ async function updateCategory(id, category, description) {
   return result.rows[0];
 }
 
+async function getProductById(id) {
+  const { rows } = await pool.query("SELECT * FROM inventory WHERE id = ($1)", [id]);
+  return rows[0]; 
+}
+
+async function insertProduct(name, description, quantity, price, categoryId) {
+  const result = await pool.query("INSERT INTO inventory (name, description, quantity, price, category_id) VALUES ($1, $2, $3, $4, $5) RETURNING *", 
+    [name, description, quantity, price, categoryId]
+  );
+
+  return result.rows[0];
+}
+
 module.exports = {
   getAllTopCategories,
   getAllSubCategories,
@@ -53,5 +66,7 @@ module.exports = {
   getSubCategoriesById,
   getProductsByCategoryId,
   insertCategory,
-  updateCategory
+  updateCategory,
+  getProductById,
+  insertProduct
 }
