@@ -6,12 +6,12 @@ const dropTables = `DROP TABLE IF EXISTS inventory, categories;`;
 const createInventoryTable = `
   CREATE TABLE IF NOT EXISTS inventory (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    name VARCHAR(50),
-    image TEXT,
+    name VARCHAR(50) NOT NULL,
+    image TEXT NOT NULL,
     price DECIMAL(10,2) NOT NULL,
     quantity INTEGER NOT NULL DEFAULT 0,
     description VARCHAR(200),
-    category_id INTEGER,
+    category_id INTEGER NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
