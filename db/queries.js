@@ -50,11 +50,21 @@ async function getProductById(id) {
   return rows[0]; 
 }
 
-async function insertProduct(name, description, quantity, price, categoryId) {
-  const result = await pool.query("INSERT INTO inventory (name, description, quantity, price, category_id) VALUES ($1, $2, $3, $4, $5) RETURNING *", 
-    [name, description, quantity, price, categoryId]
+async function insertProduct(name, description, quantity, price, category_id, image) {
+  const result = await pool.query("INSERT INTO inventory (name, description, quantity, price, category_id, image) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *", 
+    [name, description, quantity, price, category_id, image]
   );
 
+  return result.rows[0];
+}
+
+async function updateProduct(id, name, description, price, quantity, categoryId, image) {
+  const result = await pool.query(
+    `UPDATE inventory 
+     SET name = $1, description = $2, price = $3, quantity = $4, category_id = $5, image = $6, updated_at = CURRENT_TIMESTAMP
+     WHERE id = $7 RETURNING *`,
+    [name, description, price, quantity, categoryId, image, id]
+  );
   return result.rows[0];
 }
 
@@ -68,5 +78,6 @@ module.exports = {
   insertCategory,
   updateCategory,
   getProductById,
-  insertProduct
+  insertProduct,
+  updateProduct
 }
