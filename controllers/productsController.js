@@ -1,4 +1,4 @@
-const { getallInventory, getProductById, getAllSubCategories, getAllTopCategories, insertProduct, updateProduct } = require("../db/queries")
+const { getallInventory, getProductById, getAllSubCategories, getAllTopCategories, insertProduct, updateProduct, deleteProductById, deleteCategoryById } = require("../db/queries")
 const path = require('path');
 const fs = require('fs');
 
@@ -110,10 +110,38 @@ const editProduct = async (req, res) => {
   }
 };
 
+const deleteProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedProduct = await deleteProductById(id);
+
+    if (!deletedProduct) {
+      return res.status(404).send("Product not found");
+    }
+
+    // Delete image from uploads folder
+    if (deletedProduct.image) {
+      const imagePath = path.join(__dirname, '..', 'public', 'uploads', deletedProduct.image);
+
+      fs.unlink(imagePath, (err) => {
+        if (err) {
+          console.warn("Image deletion failed:", err.message);
+        } 
+      });
+    }
+
+    res.redirect('/products');
+  } catch (err) {
+    console.error("Error deleting product:", err);
+    res.status(500).send("Server Error");
+  }
+};
+
 module.exports = {
   getProducts,
   getProductDetails,
   getProductForm,
   addNewProduct,
-  editProduct
+  editProduct,
+  deleteProduct
 }
