@@ -1,6 +1,5 @@
 const { Router } = require('express');
-const { getCategories, getCategoryDetails, getCategoryForm, addNewCategory, editCategory } = require('../controllers/categoriesController');
-const { getCategoryById } = require('../db/queries');
+const { getCategories, getCategoryDetails, getCategoryForm, addNewCategory, editCategory, deleteCategory } = require('../controllers/categoriesController');
 
 const categoriesRouter = Router();
 
@@ -11,5 +10,6 @@ categoriesRouter.get('/:id/edit', getCategoryForm)
 
 categoriesRouter.post('/create', addNewCategory);
 categoriesRouter.post('/:id/edit', editCategory);
+categoriesRouter.post('/:id/delete', deleteCategory);
 
 module.exports = categoriesRouter;
