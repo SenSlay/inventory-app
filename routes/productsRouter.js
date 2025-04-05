@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const multer = require('multer');
 const path = require('path');
-const { getProducts, getProductDetails, getProductForm, addNewProduct, editProduct } = require('../controllers/productsController');
+const { getProducts, getProductDetails, getProductForm, addNewProduct, editProduct, deleteProduct } = require('../controllers/productsController');
 
 const productsRouter = Router();
 
@@ -23,5 +23,6 @@ productsRouter.get('/:id/edit', getProductForm);
 
 productsRouter.post('/new', upload.single('image'), addNewProduct);
 productsRouter.post('/:id/edit', upload.single('image'), editProduct);
+productsRouter.post('/:id/delete', deleteProduct);
 
 module.exports = productsRouter;
