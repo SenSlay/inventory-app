@@ -35,9 +35,15 @@ const getCategoryDetails = async(req, res) => {
     if (!category) {
       return res.status(404).send("Category not found");
     }
-    
     const categoryParentId = category.parent_category_id;
-    if (categoryParentId) {
+    
+    if (categoryId == 1) {
+      // If category is miscellaneous
+      categoryProducts = await getProductsByCategoryId(categoryId);
+
+      res.render('categoryDetails', { category, subCategories, categoryProducts})
+    } else if (categoryParentId) {
+      // If it's subcategory
       [parentCategory, categoryProducts] = await Promise.all([
         getCategoryById(categoryParentId),
         getProductsByCategoryId(categoryId)
@@ -45,6 +51,7 @@ const getCategoryDetails = async(req, res) => {
       res.render('categoryDetails', { category, subCategories, parentCategory, categoryProducts })
       return;
     } else {
+      // Else if it's parent category
       subCategories = await getSubCategoriesById(categoryId);
       console.log(subCategories)
       res.render('categoryDetails', { category, subCategories, categoryProducts })
@@ -121,10 +128,22 @@ const editCategory = async(req, res) => {
   }
 }
 
+const deleteCategory = async (req, res) => {
+  const categoryId = req.params.id;
+  try {
+    await deleteCategoryById(categoryId);
+    res.redirect('/categories'); 
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error deleting category");
+  }
+};
+
 module.exports = {
   getCategories,
   getCategoryDetails,
   getCategoryForm,
   addNewCategory,
-  editCategory
+  editCategory,
+  deleteCategory
 }
