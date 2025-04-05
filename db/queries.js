@@ -1,12 +1,12 @@
 const pool = require("./pool");
 
 async function getAllTopCategories() {
-  const { rows } = await pool.query("SELECT * FROM categories WHERE parent_category_id IS NULL;")
+  const { rows } = await pool.query("SELECT * FROM categories WHERE parent_category_id IS NULL ORDER BY id;")
   return rows; 
 }
 
 async function getAllSubCategories() {
-  const { rows } = await pool.query("SELECT * FROM categories WHERE parent_category_id IS NOT NULL")
+  const { rows } = await pool.query("SELECT * FROM categories WHERE parent_category_id IS NOT NULL ORDER BY id")
   return rows;
 }
 
@@ -68,6 +68,17 @@ async function updateProduct(id, name, description, price, quantity, categoryId,
   return result.rows[0];
 }
 
+async function deleteProductById(id) {
+  const { rows } = await pool.query("DELETE FROM inventory WHERE id = $1 RETURNING *", [id]);
+  return rows[0];
+}
+
+async function deleteCategoryById(id) {
+  const result = await pool.query("DELETE FROM categories WHERE id = $1", [id]);
+
+  return result;
+}
+
 module.exports = {
   getAllTopCategories,
   getAllSubCategories,
@@ -79,5 +90,7 @@ module.exports = {
   updateCategory,
   getProductById,
   insertProduct,
-  updateProduct
+  updateProduct,
+  deleteProductById,
+  deleteCategoryById
 }
