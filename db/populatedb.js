@@ -14,7 +14,7 @@ const createInventoryTable = `
     category_id INTEGER NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
+    CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET DEFAULT
   )
 `;
 
@@ -33,12 +33,13 @@ const createCategoryTable = `
 const addDefaultData = `
   INSERT INTO categories (category, description, parent_category_id)
   VALUES
+    ('Miscellaneous', 'Products without a category', NULL),
     ('Electronics', 'Devices like phones, laptops, and accessories', NULL),
     ('Clothing', 'Men and women apparel', NULL),
-    ('Smartphones', 'Mobile phones and accessories', 1),
-    ('Laptops', 'Portable computers', 1),
-    ('Men''s Clothing', 'Shirts, pants, and jackets', 2),
-    ('Women''s Clothing', 'Dresses, skirts, and tops', 2);
+    ('Smartphones', 'Mobile phones and accessories', 2),
+    ('Laptops', 'Portable computers', 2),
+    ('Men''s Clothing', 'Shirts, pants, and jackets', 3),
+    ('Women''s Clothing', 'Dresses, skirts, and tops', 3);
 
   INSERT INTO inventory (name, image, price, quantity, description, category_id)
   VALUES
