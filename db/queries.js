@@ -11,7 +11,14 @@ async function getAllSubCategories() {
 }
 
 async function getallInventory() {
-  const { rows } = await pool.query("SELECT * FROM inventory;");
+  const query = `
+    SELECT inventory.*, categories.category AS category_name
+    FROM inventory
+    LEFT JOIN categories ON inventory.category_id = categories.id
+    ORDER BY inventory.id ASC;
+  `;
+
+  const { rows } = await pool.query(query);
   return rows; 
 }
 
@@ -40,13 +47,34 @@ async function insertCategory(category, description, parentId) {
 }
 
 async function updateCategory(id, category, description) {
-  const result = await pool.query("UPDATE categories SET category = $1, description = $2 WHERE id = $3 RETURNING *", [category, description, id]);
+  // Check if the category is default
+  const { rows } = await pool.query('SELECT is_default FROM categories WHERE id = $1', [id]);
+
+  if (rows.length === 0) {
+    throw new Error('Category not found');
+  }
+
+  if (rows[0].is_default) {
+    throw new Error('This category cannot be edited as it is a default item.');
+  }
+
+  // Proceed with update if not default
+  const result = await pool.query(
+    "UPDATE categories SET category = $1, description = $2 WHERE id = $3 RETURNING *",
+    [category, description, id]
+  );
 
   return result.rows[0];
 }
 
 async function getProductById(id) {
-  const { rows } = await pool.query("SELECT * FROM inventory WHERE id = ($1)", [id]);
+  const { rows } = await pool.query(
+    `SELECT inventory.*, categories.category AS category_name 
+     FROM inventory 
+     JOIN categories ON inventory.category_id = categories.id 
+     WHERE inventory.id = $1`,
+    [id]
+  );
   return rows[0]; 
 }
 
@@ -74,8 +102,19 @@ async function deleteProductById(id) {
 }
 
 async function deleteCategoryById(id) {
-  const result = await pool.query("DELETE FROM categories WHERE id = $1", [id]);
+  // Check if the category is default before deleting
+  const { rows } = await pool.query('SELECT is_default FROM categories WHERE id = $1', [id]);
 
+  if (rows.length === 0) {
+    throw new Error('Category not found');
+  }
+
+  if (rows[0].is_default) {
+    throw new Error('This category cannot be deleted as it is a default item.');
+  }
+
+  // Proceed with deletion if not default
+  const result = await pool.query('DELETE FROM categories WHERE id = $1', [id]);
   return result;
 }
 
