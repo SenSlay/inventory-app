@@ -1,4 +1,4 @@
-const { getallInventory, getProductById, getAllSubCategories, getAllTopCategories, insertProduct, updateProduct, deleteProductById, deleteCategoryById } = require("../db/queries")
+const { getallInventory, getProductById, getAllSubCategories, getAllTopCategories, insertProduct, updateProduct, deleteProductById } = require("../db/queries")
 const path = require('path');
 const fs = require('fs');
 
@@ -103,9 +103,15 @@ const editProduct = async (req, res) => {
       return res.status(404).send("Product not found or not updated");
     }
 
-    res.redirect('/products');
+    res.redirect(`/products/${productId}`);
   } catch (err) {
-    console.error(err);
+    console.error("Error updating product:", err);
+
+    // Handle the error if the product is a default
+    if (err.message === 'This product cannot be edited as it is a default item.') {
+      return res.status(400).send(err.message);
+    }
+
     res.status(500).send("Server Error");
   }
 };
@@ -113,6 +119,7 @@ const editProduct = async (req, res) => {
 const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
+
     const deletedProduct = await deleteProductById(id);
 
     if (!deletedProduct) {
@@ -126,13 +133,19 @@ const deleteProduct = async (req, res) => {
       fs.unlink(imagePath, (err) => {
         if (err) {
           console.warn("Image deletion failed:", err.message);
-        } 
+        }
       });
     }
 
     res.redirect('/products');
   } catch (err) {
     console.error("Error deleting product:", err);
+
+    // Handle the error if the product is default
+    if (err.message === 'This product cannot be deleted as it is a default item.') {
+      return res.status(400).send(err.message);
+    }
+
     res.status(500).send("Server Error");
   }
 };

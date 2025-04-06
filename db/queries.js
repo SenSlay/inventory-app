@@ -87,6 +87,18 @@ async function insertProduct(name, description, quantity, price, category_id, im
 }
 
 async function updateProduct(id, name, description, price, quantity, categoryId, image) {
+  // Check if the product is default
+  const { rows } = await pool.query('SELECT is_default FROM inventory WHERE id = $1', [id]);
+
+  if (rows.length === 0) {
+    throw new Error('Product not found');
+  }
+
+  if (rows[0].is_default) {
+    throw new Error('This product cannot be edited as it is a default item.');
+  }
+
+  // Proceed with updating the product if it's not default
   const result = await pool.query(
     `UPDATE inventory 
      SET name = $1, description = $2, price = $3, quantity = $4, category_id = $5, image = $6, updated_at = CURRENT_TIMESTAMP
@@ -97,8 +109,20 @@ async function updateProduct(id, name, description, price, quantity, categoryId,
 }
 
 async function deleteProductById(id) {
-  const { rows } = await pool.query("DELETE FROM inventory WHERE id = $1 RETURNING *", [id]);
-  return rows[0];
+  // First, check if the product is marked as 'is_default'
+  const { rows } = await pool.query('SELECT is_default FROM inventory WHERE id = $1', [id]);
+
+  if (rows.length === 0) {
+    throw new Error('Product not found');
+  }
+
+  if (rows[0].is_default) {
+    throw new Error('This product cannot be deleted as it is a default item.');
+  }
+
+  // Proceed with the deletion if the product is not default
+  const deleteResult = await pool.query("DELETE FROM inventory WHERE id = $1 RETURNING *", [id]);
+  return deleteResult.rows[0];
 }
 
 async function deleteCategoryById(id) {
