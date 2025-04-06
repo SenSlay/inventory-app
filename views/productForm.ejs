@@ -6,6 +6,7 @@
   <title>Inventory App</title>
   <link rel="stylesheet" href="/css/global.css">
   <link rel="stylesheet" href="/css/productForm.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
 </head>
 <body>
   <%- include("partials/header") %>
@@ -16,7 +17,7 @@
         <form class="product-form" action="<%= product ? `/products/${product.id}/edit` : '/products/new' %>" enctype="multipart/form-data" method="POST">
           <label for="name">
             Product name
-            <input type="text" name="name" value="<%= product ? product.name : '' %>">
+            <input type="text" name="name" value="<%= product ? product.name : '' %>" required>
           </label>
           <label for="description">
             Description
@@ -49,16 +50,16 @@
               
           <label for="price">
             Price
-            <input type="number" name="price" value="<%= product ? product.price : '' %>">
+            <input type="number" name="price" step="0.01" min="0" value="<%= product ? product.price : '' %>" required>
           </label>
           <label for="quantity">
             Quantity
-            <input type="number" name="quantity" value="<%= product ? product.quantity : '' %>">
+            <input type="number" name="quantity" value="<%= product ? product.quantity : '' %>" required>
           </label>
       
           <label for="image">
             Product Image
-            <input type="file" name="image" accept="image/*" />
+            <input type="file" name="image" accept="image/*" <%= product ? '' : 'required' %>/>
           </label>
       
           <% if (product && product.image) { %>
