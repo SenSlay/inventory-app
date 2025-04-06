@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const { Client } = require("pg");
 require("dotenv").config();
 
@@ -11,7 +12,7 @@ const createInventoryTable = `
     price DECIMAL(10,2) NOT NULL,
     quantity INTEGER NOT NULL DEFAULT 0,
     description VARCHAR(200),
-    category_id INTEGER NOT NULL,
+    category_id INTEGER NOT NULL DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     is_default BOOLEAN DEFAULT false,
@@ -51,6 +52,28 @@ const addDefaultData = `
     ('Women''s Jacket', 'womens_jacket.jpg', 89.99, 75, 'Stylish jacket for women, available in multiple sizes', 7, true);
 `;
 
+const createUpdatedAtFunction = `
+  CREATE OR REPLACE FUNCTION update_updated_at_column()
+  RETURNS TRIGGER AS $$
+  BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+  END;
+  $$ language 'plpgsql';
+`;
+
+const createTriggers = `
+  CREATE TRIGGER set_updated_at_inventory
+  BEFORE UPDATE ON inventory
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+
+  CREATE TRIGGER set_updated_at_categories
+  BEFORE UPDATE ON categories
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+`;
+
 async function main() {
   console.log("seeding...");
   const client = new Client({
@@ -63,6 +86,8 @@ async function main() {
     await client.query(dropTables);
     await client.query(createCategoryTable);
     await client.query(createInventoryTable);
+    await client.query(createUpdatedAtFunction);
+    await client.query(createTriggers);
     await client.query(addDefaultData);
     console.log("Database seeded.");
   } catch (err) {
