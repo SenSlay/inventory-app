@@ -1,4 +1,4 @@
-const { getAllTopCategories, getAllSubCategories, getCategoryById, getSubCategoriesById, getProductsByCategoryId, insertCategory, updateCategory } = require("../db/queries")
+const { getAllTopCategories, getAllSubCategories, getCategoryById, getSubCategoriesById, getProductsByCategoryId, insertCategory, updateCategory, deleteCategoryById } = require("../db/queries")
 
 const getCategories = async (req, res) => {
   try {
@@ -108,12 +108,12 @@ const addNewCategory = async(req, res) => {
   }
 }
 
-const editCategory = async(req, res) => {
+const editCategory = async (req, res) => {
   try {
     const { category, description } = req.body;
     const categoryId = req.params.id;
-    console.log("category", category)
-    console.log(description)
+    console.log("category", category);
+    console.log(description);
 
     const result = await updateCategory(categoryId, category, description);
 
@@ -123,18 +123,33 @@ const editCategory = async(req, res) => {
 
     res.redirect('/categories');
   } catch (err) {
-    console.error("Error creating category:", err);
+    console.error("Error updating category:", err);
+
+    // If the error is about a default category, return a custom message
+    if (err.message === 'This category cannot be edited as it is a default item.') {
+      return res.status(400).send(err.message);
+    }
+
+    // If it's a different error, return a general error message
     res.status(500).send("Server Error");
   }
-}
+};
 
 const deleteCategory = async (req, res) => {
   const categoryId = req.params.id;
+  
   try {
     await deleteCategoryById(categoryId);
-    res.redirect('/categories'); 
+    res.redirect('/categories');
   } catch (err) {
     console.error(err);
+
+    // If the error is about a default category, return a custom message
+    if (err.message === 'This category cannot be deleted as it is a default item.') {
+      return res.status(400).send(err.message);
+    }
+
+    // If it's a different error, return a general error message
     res.status(500).send("Error deleting category");
   }
 };
