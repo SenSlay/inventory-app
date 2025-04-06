@@ -35,6 +35,11 @@ main > div {
 .category-form textarea, .category-form input, .category-form select {
   border: 1px solid black;
   padding: 5px;
+  font-size: 14px;
+}
+
+.category-form input {
+  padding: 10px;
 }
 
 .category-form textarea, .category-form input, select {

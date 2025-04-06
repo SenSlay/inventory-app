@@ -39,6 +39,11 @@ main > div {
 .product-form textarea, .product-form input, .product-form select {
   border: 1px solid black;
   padding: 5px;
+  font-size: 14px;
+}
+
+.product-form input {
+  padding: 10px;
 }
 
 .product-form textarea, .product-form input, select {
