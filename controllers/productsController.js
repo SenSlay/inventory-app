@@ -62,7 +62,7 @@ const addNewProduct = async(req, res) => {
     const { name, description, price, quantity, category_id } = req.body;
     const image = req.file ? req.file.filename : null;
 
-    const result = await insertProduct(name, description, price, quantity, category_id, image);
+    const result = await insertProduct(name, description, quantity, price, category_id, image);
 
     if (!result)  {
       throw new Error("Failed to insert new product");

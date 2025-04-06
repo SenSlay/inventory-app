@@ -80,7 +80,7 @@ async function getProductById(id) {
 
 async function insertProduct(name, description, quantity, price, category_id, image) {
   const result = await pool.query("INSERT INTO inventory (name, description, quantity, price, category_id, image) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *", 
-    [name, description, quantity, price, category_id, image]
+    [name, description, quantity, parseFloat(price), category_id, image]
   );
 
   return result.rows[0];
