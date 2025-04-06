@@ -14,6 +14,7 @@ const createInventoryTable = `
     category_id INTEGER NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_default BOOLEAN DEFAULT false,
     CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET DEFAULT
   )
 `;
@@ -26,27 +27,28 @@ const createCategoryTable = `
     parent_category_id INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_default BOOLEAN DEFAULT false,
     FOREIGN KEY (parent_category_id) REFERENCES categories(id) ON DELETE CASCADE
   )
 `;
 
 const addDefaultData = `
-  INSERT INTO categories (category, description, parent_category_id)
+  INSERT INTO categories (category, description, parent_category_id, is_default)
   VALUES
-    ('Miscellaneous', 'Products without a category', NULL),
-    ('Electronics', 'Devices like phones, laptops, and accessories', NULL),
-    ('Clothing', 'Men and women apparel', NULL),
-    ('Smartphones', 'Mobile phones and accessories', 2),
-    ('Laptops', 'Portable computers', 2),
-    ('Men''s Clothing', 'Shirts, pants, and jackets', 3),
-    ('Women''s Clothing', 'Dresses, skirts, and tops', 3);
+    ('Miscellaneous', 'Products without a category', NULL, true),
+    ('Electronics', 'Devices like phones, laptops, and accessories', NULL, true),
+    ('Clothing', 'Men and women apparel', NULL, true),
+    ('Smartphones', 'Mobile phones and accessories', 2, true),
+    ('Laptops', 'Portable computers', 2, true),
+    ('Men''s Clothing', 'Shirts, pants, and jackets', 3, true),
+    ('Women''s Clothing', 'Dresses, skirts, and tops', 3, true);
 
-  INSERT INTO inventory (name, image, price, quantity, description, category_id)
+  INSERT INTO inventory (name, image, price, quantity, description, category_id, is_default)
   VALUES
-    ('iPhone 13', 'iphone_13.jpg', 999.99, 50, 'Latest model with A15 chip and 5G connectivity', 3),
-    ('MacBook Pro 16"', 'macbook_pro_16.jpg', 2499.99, 30, 'High-performance laptop with M1 Pro chip', 4),
-    ('Men''s T-Shirt', 'mens_tshirt.jpg', 19.99, 100, 'Comfortable cotton t-shirt in various colors', 5),
-    ('Women''s Jacket', 'womens_jacket.jpg', 89.99, 75, 'Stylish jacket for women, available in multiple sizes', 6);
+    ('iPhone 13', 'iphone_13.jpg', 999.99, 50, 'Latest model with A15 chip and 5G connectivity', 4, true),
+    ('MacBook Pro 16"', 'macbook_pro_16.jpg', 2499.99, 30, 'High-performance laptop with M1 Pro chip', 5, true),
+    ('Men''s T-Shirt', 'mens_tshirt.jpg', 19.99, 100, 'Comfortable cotton t-shirt in various colors', 6, true),
+    ('Women''s Jacket', 'womens_jacket.jpg', 89.99, 75, 'Stylish jacket for women, available in multiple sizes', 7, true);
 `;
 
 async function main() {
