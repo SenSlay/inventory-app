@@ -136,22 +136,39 @@ const deleteProduct = async (req, res) => {
       return res.status(404).send("Product not found");
     }
 
-    // Delete image from uploads folder
+    // Handle image deletion
     if (deletedProduct.image) {
-      const imagePath = path.join(__dirname, '..', 'public', 'uploads', deletedProduct.image);
+      const imageUrl = deletedProduct.image;
 
-      fs.unlink(imagePath, (err) => {
-        if (err) {
-          console.warn("Image deletion failed:", err.message);
-        }
-      });
+      if (imageUrl.startsWith('http')) {
+        // Delete from Cloudinary
+        const parts = imageUrl.split('/');
+        const folder = parts[parts.length - 2];
+        const filename = parts[parts.length - 1].split('.')[0];
+        const publicId = `${folder}/${filename}`;
+
+        cloudinary.uploader.destroy(publicId, (err, result) => {
+          if (err) {
+            console.error("Failed to delete image from Cloudinary:", err);
+          } else {
+            console.log("Cloudinary image deleted:", result);
+          }
+        });
+      } else {
+        // 📂 Delete from local uploads folder
+        const imagePath = path.join(__dirname, '..', 'public', 'uploads', deletedProduct.image);
+        fs.unlink(imagePath, (err) => {
+          if (err) {
+            console.warn("Local image deletion failed:", err.message);
+          }
+        });
+      }
     }
 
     res.redirect('/products');
   } catch (err) {
     console.error("Error deleting product:", err);
 
-    // Handle the error if the product is default
     if (err.message === 'This product cannot be deleted as it is a default item.') {
       return res.status(400).send(err.message);
     }
