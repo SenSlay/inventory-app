@@ -1,6 +1,7 @@
 const { getallInventory, getProductById, getAllSubCategories, getAllTopCategories, insertProduct, updateProduct, deleteProductById } = require("../db/queries")
 const path = require('path');
 const fs = require('fs');
+const { cloudinary } = require('../cloudinaryConfig')
 
 const getProducts = async(req, res) => {
   try {
@@ -60,7 +61,9 @@ const getProductForm = async(req, res) => {
 const addNewProduct = async(req, res) => {
   try {
     const { name, description, price, quantity, category_id } = req.body;
-    const image = req.file ? req.file.filename : null;
+
+    // Get image URL from Cloudinary response (req.file.url will contain the image URL)
+    const image = req.file ? req.file.path : null;
 
     const result = await insertProduct(name, description, quantity, price, category_id, image);
 
@@ -85,14 +88,21 @@ const editProduct = async (req, res) => {
     // If new image uploaded, remove the old one
     let newImage = oldProduct.image; // default: keep old
     if (req.file) {
-      newImage = req.file.filename;
-
-      // Delete old image from uploads folder
-      const oldImagePath = path.join(__dirname, '..', 'public', 'uploads', oldProduct.image);
-      
-      fs.unlink(oldImagePath, err => {
-        if (err) console.error("Failed to delete old image:", err);
-      });
+      newImage = req.file.path; // Get the new image URL from Cloudinary
+    
+      // If old image exists, delete it from Cloudinary
+      if (oldProduct.image) {
+        // Extract the public ID correctly from the Cloudinary URL
+        const publicId = oldProduct.image.split('/').slice(7).join('/').split('.')[0]; // Extract the public ID part
+        console.log("Public ID to delete:", publicId);
+        cloudinary.uploader.destroy(publicId, (error, result) => {
+          if (error) {
+            console.error("Error deleting image from Cloudinary:", error);
+          } else {
+            console.log("Old image deleted successfully:", result);
+          }
+        });
+      }
     }
 
     const { name, description, price, quantity, category_id } = req.body;
