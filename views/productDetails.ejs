@@ -41,8 +41,8 @@
           <p id="price">$<%= product.price %></p>
           <p>Quantity: <%= product.quantity %></p>
           <div class="date-container">
-            <p>Updated: <%= new Date(product.updated_at).toLocaleString("en-US", options) %></p>
-            <p>Created: <%= new Date(product.created_at).toLocaleString("en-US", options) %></p>
+            <p>Updated: <%= new Date(product.updated_at).toLocaleString(options) %></p>
+            <p>Created: <%= new Date(product.created_at).toLocaleString(options) %></p>
           </div>
         </div>
       </div>

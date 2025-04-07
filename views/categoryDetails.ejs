@@ -40,8 +40,8 @@
         <% } %>
         <p><%= category.description %></p>
         <div class="date-container">
-          <p>Updated: <%= new Date(category.updated_at).toLocaleString("en-US", options) %></p>
-          <p>Created: <%= new Date(category.created_at).toLocaleString("en-US", options) %></p>
+          <p>Updated: <%= new Date(category.updated_at).toLocaleString(options) %></p>
+          <p>Created: <%= new Date(category.created_at).toLocaleString(options) %></p>
         </div>
         <% if (subCategories && subCategories.length > 0) { %>
           <div class="sub-container">
