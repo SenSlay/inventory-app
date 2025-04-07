@@ -17,11 +17,11 @@
         <form class="product-form" action="<%= product ? `/products/${product.id}/edit` : '/products/new' %>" enctype="multipart/form-data" method="POST">
           <label for="name">
             Product name
-            <input type="text" name="name" value="<%= product ? product.name : '' %>" required>
+            <input type="text" name="name" maxlength="50" value="<%= product ? product.name : '' %>" required>
           </label>
           <label for="description">
             Description
-            <textarea name="description" id=""><%= product ? product.description : '' %></textarea>
+            <textarea name="description" rows="5" maxlength="200"><%= product ? product.description : '' %></textarea>
           </label>
           <label for="category">
             Category

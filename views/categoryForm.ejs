@@ -17,12 +17,12 @@
         <form class="category-form" action="<%= category ? `/categories/${category.id}/edit` : '/categories/create' %>" method="POST">
           <label>
             Category Name:
-            <input type="text" name="category" value="<%= category ? category.category : '' %>" placeholder="Category" required />
+            <input type="text" name="category" maxlength="50" value="<%= category ? category.category : '' %>" placeholder="Category" required />
           </label>
         
           <label>
             Description:
-            <textarea name="description"><%= category ? category.description : '' %></textarea>
+            <textarea maxlength="200" rows="5" name="description"><%= category ? category.description : '' %></textarea>
           </label>
         
           <% if (!isEditing) { %>
