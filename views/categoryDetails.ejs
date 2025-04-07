@@ -60,7 +60,7 @@
             <ul class="products-list">
               <% categoryProducts.forEach(product => { %>
                 <li class="product-card" data-link="/products/<%= product.id %>">
-                  <img src="/uploads/<%= product.image %>" alt="image" width="auto" height="200px">
+                  <img src="<%= product.is_default ? '/uploads/' + product.image : product.image %>" alt="image" width="auto" height="200px">
                   <a href="/products/<%= product.id %>">
                     <%= product.name %>
                   </a>
