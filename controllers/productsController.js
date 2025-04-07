@@ -62,8 +62,21 @@ const addNewProduct = async(req, res) => {
   try {
     const { name, description, price, quantity, category_id } = req.body;
 
-    // Get image URL from Cloudinary response (req.file.url will contain the image URL)
-    const image = req.file ? req.file.path : null;
+    // Validate required fields
+    if (!name || !price || !quantity || !category_id) {
+      return res.status(400).send("All fields are required.");
+    }
+
+    // Check if price and quantity are valid numbers
+    if (isNaN(price) || isNaN(quantity)) {
+      return res.status(400).send("Price and quantity must be valid numbers.");
+    }
+
+    let image = null;
+    // Proceed with image upload only if validation passes
+    if (req.file) {
+      image = req.file.path; // Get the image URL from Cloudinary (or local path)
+    }
 
     const result = await insertProduct(name, description, quantity, price, category_id, image);
 
@@ -85,15 +98,24 @@ const editProduct = async (req, res) => {
 
     if (!oldProduct) return res.status(404).send("Product not found");
 
-    // If new image uploaded, remove the old one
-    let newImage = oldProduct.image; // default: keep old
+    // Validate required fields
+    const { name, description, price, quantity, category_id } = req.body;
+    if (!name || !price || !quantity || !category_id) {
+      return res.status(400).send("All fields are required.");
+    }
+
+    // Check if price and quantity are valid numbers
+    if (isNaN(price) || isNaN(quantity)) {
+      return res.status(400).send("Price and quantity must be valid numbers.");
+    }
+
+    let newImage = oldProduct.image; // Default: keep old image if no new image uploaded
     if (req.file) {
       newImage = req.file.path; // Get the new image URL from Cloudinary
-    
+
       // If old image exists, delete it from Cloudinary
       if (oldProduct.image) {
-        // Extract the public ID correctly from the Cloudinary URL
-        const publicId = oldProduct.image.split('/').slice(7).join('/').split('.')[0]; // Extract the public ID part
+        const publicId = oldProduct.image.split('/').slice(7).join('/').split('.')[0]; // Extract the public ID
         console.log("Public ID to delete:", publicId);
         cloudinary.uploader.destroy(publicId, (error, result) => {
           if (error) {
@@ -105,8 +127,6 @@ const editProduct = async (req, res) => {
       }
     }
 
-    const { name, description, price, quantity, category_id } = req.body;
-
     const updated = await updateProduct(productId, name, description, price, quantity, category_id, newImage);
 
     if (!updated) {
@@ -117,7 +137,6 @@ const editProduct = async (req, res) => {
   } catch (err) {
     console.error("Error updating product:", err);
 
-    // Handle the error if the product is a default
     if (err.message === 'This product cannot be edited as it is a default item.') {
       return res.status(400).send(err.message);
     }
