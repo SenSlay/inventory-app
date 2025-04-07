@@ -17,6 +17,12 @@ main > div {
   border-radius: 10px;
   width: 350px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.category-form-container h1 {
+  text-align: center;
 }
 
 .category-form {
