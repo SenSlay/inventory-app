@@ -63,7 +63,7 @@
           </label>
       
           <% if (product && product.image) { %>
-            <img src="/uploads/<%= product.image %>" alt="Product Image" style="max-width: 200px; max-height: 400px;" />
+            <img src="<%= product.is_default ? '/uploads/' + product.image : product.image %>" alt="Product Image" style="max-width: 200px; max-height: 400px;" />
           <% } %>
         
           <button class="default-btn" type="submit"><%= product ? 'Update' : 'Add' %> product</button>

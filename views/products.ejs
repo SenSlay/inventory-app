@@ -20,7 +20,7 @@
       <ul>
         <% products.forEach(product => { %>
           <li class="product-card list-card" data-link="/products/<%= product.id %>">
-            <img src="/uploads/<%= product.image %>" alt="Product" width="auto" style="height: 250px;">
+            <img src="<%= product.is_default ? '/uploads/' + product.image : product.image %>" alt="Product" width="auto" style="height: 250px;">
             <div>
               <h2><%= product.name %></h2>
               <p>Price: $<%= product.price %></p>

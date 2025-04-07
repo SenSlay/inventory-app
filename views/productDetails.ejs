@@ -15,7 +15,7 @@
   <main>
     <div>
       <div class="product-details-container">
-        <img src="/uploads/<%= product.image %>" alt="Product" width="250px">
+        <img src="<%= product.is_default ? '/uploads/' + product.image : product.image %>" alt="Product" width="250px">
         <div class="details">
           <div>
             <h1><%= product.name %>
