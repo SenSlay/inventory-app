@@ -50,11 +50,11 @@
               
           <label for="price">
             Price
-            <input type="number" name="price" step="0.01" min="0" value="<%= product ? product.price : '' %>" required>
+            <input type="number" name="price" step="0.01" min="0" max="99999999" value="<%= product ? product.price : '' %>" required>
           </label>
           <label for="quantity">
             Quantity
-            <input type="number" name="quantity" value="<%= product ? product.quantity : '' %>" required>
+            <input type="number" name="quantity" max="999999" value="<%= product ? product.quantity : '' %>" required>
           </label>
       
           <label for="image">
